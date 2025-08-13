@@ -189,8 +189,9 @@ function SuccessContent() {
       const blob = await response.blob();
       console.log('حجم الملف:', blob.size, 'bytes');
       
-      if (blob.size === 0) {
-        throw new Error('الملف فارغ أو غير صالح');
+      // التحقق من أن الملف ليس HTML فقط (فحص أساسي)
+      if (contentType && contentType.includes('text/html')) {
+        throw new Error('الخادم يعيد صفحة HTML بدلاً من ملف التحميل');
       }
       
       // إنشاء رابط تحميل مؤقت
@@ -222,30 +223,32 @@ function SuccessContent() {
       // إظهار رسالة نجاح مع عدد المرات المتبقية
       const newRemainingDownloads = (downloadLink.maxDownloads || 3) - newCurrentDownloads;
       if (newRemainingDownloads > 0) {
-        alert(`تم بدء تحميل اللعبة بنجاح! المرات المتبقية: ${newRemainingDownloads}`);
+        alert(`تم بدء تحميل اللعبة بنجاح! 🎉\nالمرات المتبقية: ${newRemainingDownloads}`);
       } else {
-        alert('تم بدء تحميل اللعبة بنجاح! هذه كانت آخر مرة تحميل متاحة.');
+        alert('تم بدء تحميل اللعبة بنجاح! 🎉\nهذه كانت آخر مرة تحميل متاحة.');
       }
       
     } catch (error) {
       console.error('خطأ في تحميل اللعبة:', error);
       
-      // رسائل خطأ أكثر تفصيلاً
-      let errorMessage = 'حدث خطأ أثناء تحميل اللعبة. يرجى المحاولة مرة أخرى.';
-      
-      if (error instanceof Error) {
-        if (error.name === 'AbortError') {
-          errorMessage = 'انتهت مهلة التحميل. الملف كبير جداً أو بطيء الاتصال.';
-        } else if (error.message.includes('404')) {
-          errorMessage = 'الملف غير موجود أو تم حذفه.';
-        } else if (error.message.includes('403')) {
-          errorMessage = 'غير مسموح بالوصول للملف.';
-        } else if (error.message.includes('500')) {
-          errorMessage = 'خطأ في الخادم. يرجى المحاولة لاحقاً.';
-        } else {
-          errorMessage = `خطأ في التحميل: ${error.message}`;
-        }
-      }
+             // رسائل خطأ أكثر تفصيلاً
+       let errorMessage = 'حدث خطأ أثناء تحميل اللعبة. يرجى المحاولة مرة أخرى.';
+       
+       if (error instanceof Error) {
+         if (error.name === 'AbortError') {
+           errorMessage = 'انتهت مهلة التحميل. الملف كبير جداً أو بطيء الاتصال.';
+         } else if (error.message.includes('404')) {
+           errorMessage = 'الملف غير موجود أو تم حذفه.';
+         } else if (error.message.includes('403')) {
+           errorMessage = 'غير مسموح بالوصول للملف.';
+         } else if (error.message.includes('500')) {
+           errorMessage = 'خطأ في الخادم. يرجى المحاولة لاحقاً.';
+                   } else if (error.message.includes('HTML')) {
+           errorMessage = 'الخادم يعيد صفحة HTML بدلاً من الملف. يرجى التحقق من الرابط.';
+         } else {
+           errorMessage = `خطأ في التحميل: ${error.message}`;
+         }
+       }
       
       alert(errorMessage);
     }

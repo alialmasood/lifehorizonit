@@ -142,22 +142,56 @@ function SuccessContent() {
     }
 
     try {
+      console.log('بدء عملية التحميل...', downloadLink.downloadUrl);
+      
       // إخفاء الرابط عن المستخدم وإجراء التحميل مباشرة
       const response = await fetch(downloadLink.downloadUrl, {
         method: 'GET',
+        headers: {
+          'Accept': '*/*',
+        },
+        // زيادة timeout للطلبات الكبيرة
+        signal: AbortSignal.timeout(300000), // 5 دقائق
       });
 
+      console.log('استجابة الخادم:', response.status, response.statusText);
+
       if (!response.ok) {
-        throw new Error(`خطأ في التحميل: ${response.status}`);
+        throw new Error(`خطأ في التحميل: ${response.status} ${response.statusText}`);
       }
 
-      // الحصول على اسم الملف من الرابط
-      const url = new URL(downloadLink.downloadUrl);
-      const pathParts = url.pathname.split('/');
-      const fileName = pathParts[pathParts.length - 1] || 'game-download';
+      // التحقق من نوع المحتوى
+      const contentType = response.headers.get('content-type');
+      console.log('نوع المحتوى:', contentType);
 
-      // تحويل الاستجابة إلى blob
+      // الحصول على اسم الملف من headers أو الرابط
+      let fileName = 'game-download';
+      const contentDisposition = response.headers.get('content-disposition');
+      
+      if (contentDisposition) {
+        const filenameMatch = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
+        if (filenameMatch && filenameMatch[1]) {
+          fileName = filenameMatch[1].replace(/['"]/g, '');
+        }
+      } else {
+        // استخراج اسم الملف من الرابط
+        const url = new URL(downloadLink.downloadUrl);
+        const pathParts = url.pathname.split('/');
+        const urlFileName = pathParts[pathParts.length - 1];
+        if (urlFileName && urlFileName.includes('.')) {
+          fileName = urlFileName;
+        }
+      }
+
+      console.log('اسم الملف:', fileName);
+
+      // تحويل الاستجابة إلى blob مع معالجة الأخطاء
       const blob = await response.blob();
+      console.log('حجم الملف:', blob.size, 'bytes');
+      
+      if (blob.size === 0) {
+        throw new Error('الملف فارغ أو غير صالح');
+      }
       
       // إنشاء رابط تحميل مؤقت
       const downloadUrl = window.URL.createObjectURL(blob);
@@ -173,8 +207,10 @@ function SuccessContent() {
       link.click();
       
       // تنظيف الذاكرة
-      document.body.removeChild(link);
-      window.URL.revokeObjectURL(downloadUrl);
+      setTimeout(() => {
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(downloadUrl);
+      }, 1000);
       
       // تحديث عداد التحميلات
       const newCurrentDownloads = (downloadLink.currentDownloads || 0) + 1;
@@ -193,7 +229,25 @@ function SuccessContent() {
       
     } catch (error) {
       console.error('خطأ في تحميل اللعبة:', error);
-      alert('حدث خطأ أثناء تحميل اللعبة. يرجى المحاولة مرة أخرى.');
+      
+      // رسائل خطأ أكثر تفصيلاً
+      let errorMessage = 'حدث خطأ أثناء تحميل اللعبة. يرجى المحاولة مرة أخرى.';
+      
+      if (error instanceof Error) {
+        if (error.name === 'AbortError') {
+          errorMessage = 'انتهت مهلة التحميل. الملف كبير جداً أو بطيء الاتصال.';
+        } else if (error.message.includes('404')) {
+          errorMessage = 'الملف غير موجود أو تم حذفه.';
+        } else if (error.message.includes('403')) {
+          errorMessage = 'غير مسموح بالوصول للملف.';
+        } else if (error.message.includes('500')) {
+          errorMessage = 'خطأ في الخادم. يرجى المحاولة لاحقاً.';
+        } else {
+          errorMessage = `خطأ في التحميل: ${error.message}`;
+        }
+      }
+      
+      alert(errorMessage);
     }
   };
 

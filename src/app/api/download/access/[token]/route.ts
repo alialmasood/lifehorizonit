@@ -65,15 +65,31 @@ export async function GET(
 
     // جلب الملف من الرابط الأصلي وإرجاعه مباشرة
     try {
-      const fileResponse = await fetch(tokenData.originalUrl);
+      console.log('جاري جلب الملف من:', tokenData.originalUrl);
+      
+      const fileResponse = await fetch(tokenData.originalUrl, {
+        method: 'GET',
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+          'Accept': '*/*',
+        },
+        // زيادة timeout للطلبات الكبيرة
+        signal: AbortSignal.timeout(300000), // 5 دقائق
+      });
+      
+      console.log('استجابة الملف:', fileResponse.status, fileResponse.statusText);
       
       if (!fileResponse.ok) {
-        throw new Error(`خطأ في جلب الملف: ${fileResponse.status}`);
+        throw new Error(`خطأ في جلب الملف: ${fileResponse.status} ${fileResponse.statusText}`);
       }
 
       // الحصول على نوع الملف واسمه
       const contentType = fileResponse.headers.get('content-type') || 'application/octet-stream';
       const contentDisposition = fileResponse.headers.get('content-disposition');
+      const contentLength = fileResponse.headers.get('content-length');
+      
+      console.log('نوع المحتوى:', contentType);
+      console.log('حجم الملف:', contentLength, 'bytes');
       
       // استخراج اسم الملف من Content-Disposition أو من الرابط
       let fileName = 'game-download';
@@ -92,8 +108,16 @@ export async function GET(
         }
       }
 
+      console.log('اسم الملف:', fileName);
+
       // تحويل الملف إلى ArrayBuffer
       const arrayBuffer = await fileResponse.arrayBuffer();
+      
+      console.log('تم تحويل الملف، الحجم:', arrayBuffer.byteLength, 'bytes');
+      
+      if (arrayBuffer.byteLength === 0) {
+        throw new Error('الملف فارغ أو غير صالح');
+      }
 
       // إرجاع الملف مباشرة
       return new NextResponse(arrayBuffer, {
@@ -101,16 +125,34 @@ export async function GET(
         headers: {
           'Content-Type': contentType,
           'Content-Disposition': `attachment; filename="${fileName}"`,
+          'Content-Length': arrayBuffer.byteLength.toString(),
           'Cache-Control': 'no-cache, no-store, must-revalidate',
           'Pragma': 'no-cache',
-          'Expires': '0'
+          'Expires': '0',
+          'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Methods': 'GET',
+          'Access-Control-Allow-Headers': 'Content-Type, Content-Disposition'
         }
       });
 
     } catch (error) {
       console.error('خطأ في جلب الملف:', error);
+      
+      let errorMessage = 'فشل في تحميل الملف';
+      if (error instanceof Error) {
+        if (error.name === 'AbortError') {
+          errorMessage = 'انتهت مهلة التحميل - الملف كبير جداً';
+        } else if (error.message.includes('404')) {
+          errorMessage = 'الملف غير موجود';
+        } else if (error.message.includes('403')) {
+          errorMessage = 'غير مسموح بالوصول للملف';
+        } else {
+          errorMessage = error.message;
+        }
+      }
+      
       return NextResponse.redirect(
-        `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/download/error?type=download_failed&message=فشل في تحميل الملف`
+        `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/download/error?type=download_failed&message=${encodeURIComponent(errorMessage)}`
       );
     }
 

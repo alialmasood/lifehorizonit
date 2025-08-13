@@ -70,14 +70,24 @@ export async function GET(
       const fileResponse = await fetch(tokenData.originalUrl, {
         method: 'GET',
         headers: {
-          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
           'Accept': '*/*',
+          'Accept-Language': 'en-US,en;q=0.9',
+          'Accept-Encoding': 'gzip, deflate, br',
+          'Connection': 'keep-alive',
+          'Upgrade-Insecure-Requests': '1',
+          'Sec-Fetch-Dest': 'document',
+          'Sec-Fetch-Mode': 'navigate',
+          'Sec-Fetch-Site': 'none',
+          'Cache-Control': 'no-cache',
         },
         // زيادة timeout للطلبات الكبيرة
         signal: AbortSignal.timeout(300000), // 5 دقائق
+        redirect: 'follow',
       });
       
       console.log('استجابة الملف:', fileResponse.status, fileResponse.statusText);
+      console.log('URL النهائي:', fileResponse.url);
       
       if (!fileResponse.ok) {
         throw new Error(`خطأ في جلب الملف: ${fileResponse.status} ${fileResponse.statusText}`);
@@ -91,6 +101,17 @@ export async function GET(
       console.log('نوع المحتوى:', contentType);
       console.log('حجم الملف:', contentLength, 'bytes');
       
+      // التحقق من أن الاستجابة ليست HTML
+      if (contentType.includes('text/html') || contentType.includes('text/plain')) {
+        console.error('الاستجابة هي HTML بدلاً من ملف:', contentType);
+        
+        // محاولة قراءة المحتوى للتحقق
+        const textContent = await fileResponse.text();
+        console.log('محتوى الاستجابة (أول 500 حرف):', textContent.substring(0, 500));
+        
+        throw new Error('الخادم يعيد صفحة HTML بدلاً من الملف المطلوب. قد يكون الرابط غير صحيح أو يتطلب مصادقة.');
+      }
+      
       // استخراج اسم الملف من Content-Disposition أو من الرابط
       let fileName = 'game-download';
       if (contentDisposition) {
@@ -100,7 +121,7 @@ export async function GET(
         }
       } else {
         // استخراج اسم الملف من الرابط
-        const url = new URL(tokenData.originalUrl);
+        const url = new URL(fileResponse.url);
         const pathParts = url.pathname.split('/');
         const urlFileName = pathParts[pathParts.length - 1];
         if (urlFileName && urlFileName.includes('.')) {
@@ -117,6 +138,13 @@ export async function GET(
       
       if (arrayBuffer.byteLength === 0) {
         throw new Error('الملف فارغ أو غير صالح');
+      }
+
+      // التحقق من أن الملف ليس HTML (فحص إضافي)
+      const firstBytes = new Uint8Array(arrayBuffer.slice(0, 100));
+      const firstChars = new TextDecoder().decode(firstBytes);
+      if (firstChars.toLowerCase().includes('<!doctype') || firstChars.toLowerCase().includes('<html')) {
+        throw new Error('المحتوى المستلم هو صفحة HTML وليس ملف التحميل المطلوب');
       }
 
       // إرجاع الملف مباشرة

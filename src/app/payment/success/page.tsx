@@ -160,39 +160,30 @@ function SuccessContent() {
         throw new Error(`خطأ في التحميل: ${response.status} ${response.statusText}`);
       }
 
-      // التحقق من نوع المحتوى
-      const contentType = response.headers.get('content-type');
-      console.log('نوع المحتوى:', contentType);
+             // الحصول على اسم الملف من headers أو الرابط
+       let fileName = 'game-download';
+       const contentDisposition = response.headers.get('content-disposition');
+       
+       if (contentDisposition) {
+         const filenameMatch = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
+         if (filenameMatch && filenameMatch[1]) {
+           fileName = filenameMatch[1].replace(/['"]/g, '');
+         }
+       } else {
+         // استخراج اسم الملف من الرابط
+         const url = new URL(downloadLink.downloadUrl);
+         const pathParts = url.pathname.split('/');
+         const urlFileName = pathParts[pathParts.length - 1];
+         if (urlFileName && urlFileName.includes('.')) {
+           fileName = urlFileName;
+         }
+       }
 
-      // الحصول على اسم الملف من headers أو الرابط
-      let fileName = 'game-download';
-      const contentDisposition = response.headers.get('content-disposition');
-      
-      if (contentDisposition) {
-        const filenameMatch = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
-        if (filenameMatch && filenameMatch[1]) {
-          fileName = filenameMatch[1].replace(/['"]/g, '');
-        }
-      } else {
-        // استخراج اسم الملف من الرابط
-        const url = new URL(downloadLink.downloadUrl);
-        const pathParts = url.pathname.split('/');
-        const urlFileName = pathParts[pathParts.length - 1];
-        if (urlFileName && urlFileName.includes('.')) {
-          fileName = urlFileName;
-        }
-      }
+       console.log('اسم الملف:', fileName);
 
-      console.log('اسم الملف:', fileName);
-
-      // تحويل الاستجابة إلى blob مع معالجة الأخطاء
-      const blob = await response.blob();
-      console.log('حجم الملف:', blob.size, 'bytes');
-      
-      // التحقق من أن الملف ليس HTML فقط (فحص أساسي)
-      if (contentType && contentType.includes('text/html')) {
-        throw new Error('الخادم يعيد صفحة HTML بدلاً من ملف التحميل');
-      }
+       // تحويل الاستجابة إلى blob
+       const blob = await response.blob();
+       console.log('حجم الملف:', blob.size, 'bytes');
       
       // إنشاء رابط تحميل مؤقت
       const downloadUrl = window.URL.createObjectURL(blob);
@@ -243,9 +234,7 @@ function SuccessContent() {
            errorMessage = 'غير مسموح بالوصول للملف.';
          } else if (error.message.includes('500')) {
            errorMessage = 'خطأ في الخادم. يرجى المحاولة لاحقاً.';
-                   } else if (error.message.includes('HTML')) {
-           errorMessage = 'الخادم يعيد صفحة HTML بدلاً من الملف. يرجى التحقق من الرابط.';
-         } else {
+                             } else {
            errorMessage = `خطأ في التحميل: ${error.message}`;
          }
        }

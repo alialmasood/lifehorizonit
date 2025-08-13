@@ -101,16 +101,7 @@ export async function GET(
       console.log('نوع المحتوى:', contentType);
       console.log('حجم الملف:', contentLength, 'bytes');
       
-             // التحقق من أن الاستجابة ليست HTML
-       if (contentType.includes('text/html')) {
-         console.error('الاستجابة هي HTML بدلاً من ملف:', contentType);
-         
-         // محاولة قراءة المحتوى للتحقق
-         const textContent = await fileResponse.text();
-         console.log('محتوى الاستجابة (أول 500 حرف):', textContent.substring(0, 500));
-         
-         throw new Error('الخادم يعيد صفحة HTML بدلاً من الملف المطلوب. قد يكون الرابط غير صحيح أو يتطلب مصادقة.');
-       }
+      
       
       // استخراج اسم الملف من Content-Disposition أو من الرابط
       let fileName = 'game-download';
@@ -138,12 +129,7 @@ export async function GET(
        
 
 
-      // التحقق من أن الملف ليس HTML (فحص إضافي)
-      const firstBytes = new Uint8Array(arrayBuffer.slice(0, 100));
-      const firstChars = new TextDecoder().decode(firstBytes);
-      if (firstChars.toLowerCase().includes('<!doctype') || firstChars.toLowerCase().includes('<html')) {
-        throw new Error('المحتوى المستلم هو صفحة HTML وليس ملف التحميل المطلوب');
-      }
+      
 
       // إرجاع الملف مباشرة
       return new NextResponse(arrayBuffer, {

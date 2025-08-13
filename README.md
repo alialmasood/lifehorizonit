@@ -1,36 +1,121 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# متجر أريبا الإلكتروني - بوابة الدفع
 
-## Getting Started
+## نظرة عامة
 
-First, run the development server:
+هذا مشروع Next.js يوضح كيفية دمج بوابة الدفع الخاصة بشركة أريبا في تطبيق إلكتروني. النظام يدعم المعاملات المتكررة ويحتوي على جميع صفحات النجاح والإلغاء والخطأ والـ callback.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+## الميزات
+
+- ✅ دعم المعاملات المتكررة (كل ضغطة على زر الشراء تنشئ معاملة جديدة)
+- ✅ صفحة نجاح الدفع مع تفاصيل المعاملة
+- ✅ صفحة إلغاء الدفع
+- ✅ صفحة خطأ الدفع
+- ✅ نظام callback متقدم لاستلام إشعارات الدفع
+- ✅ واجهة مستخدم جميلة ومتجاوبة
+- ✅ دعم اللغة العربية
+- ✅ تسجيل مفصل لجميع العمليات
+
+## البنية
+
+```
+src/
+├── app/
+│   ├── api/payment/
+│   │   ├── initiate/route.ts     # بدء عملية الدفع
+│   │   └── callback/route.ts     # استلام إشعارات الدفع
+│   ├── payment/
+│   │   ├── checkout/page.tsx     # صفحة إدخال بيانات الدفع
+│   │   ├── success/page.tsx      # صفحة نجاح الدفع
+│   │   ├── cancel/page.tsx       # صفحة إلغاء الدفع
+│   │   └── error/page.tsx        # صفحة خطأ الدفع
+│   └── page.tsx                  # الصفحة الرئيسية
+└── lib/
+    └── areeba-config.ts          # إعدادات بوابة الدفع
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## كيفية العمل
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### 1. بدء عملية الدفع
+- المستخدم يضغط على زر "شراء الآن" في الصفحة الرئيسية
+- يتم توجيهه إلى صفحة الدفع المحلية
+- يتم إنشاء معرف معاملة فريد لكل عملية دفع
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### 2. إنشاء المعاملة
+- يتم إرسال طلب إلى بوابة الدفع مع البيانات المطلوبة
+- يتم تضمين روابط النجاح والإلغاء والخطأ والـ callback
+- كل معاملة لها معرف فريد يضمن عدم التكرار
 
-## Learn More
+### 3. صفحات النتيجة
+- **صفحة النجاح**: تعرض تفاصيل الدفع الناجح
+- **صفحة الإلغاء**: تعرض رسالة إلغاء الدفع
+- **صفحة الخطأ**: تعرض تفاصيل الخطأ الذي حدث
+- **صفحة الـ callback**: تستلم إشعارات من بوابة الدفع
 
-To learn more about Next.js, take a look at the following resources:
+## الإعدادات
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### ملف `src/lib/areeba-config.ts`
+```typescript
+export const AREEBA_CONFIG = {
+  MERCHANT_ID: 'IQ3093980103',
+  API_KEY: 'TESTKEYIQ3093980103',
+  BASE_URL: 'https://gateway.areebapayment.com/api/v3',
+  AUTH: {
+    USERNAME: 'Ali.112233445566',
+    PASSWORD: 'Zxxznmmn@123'
+  }
+};
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## التشغيل
 
-## Deploy on Vercel
+1. تثبيت المتطلبات:
+```bash
+npm install
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+2. تشغيل المشروع:
+```bash
+npm run dev
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+3. فتح المتصفح على:
+```
+http://localhost:3000
+```
+
+## اختبار النظام
+
+### بيانات البطاقة التجريبية
+- **رقم البطاقة**: 5123 4500 0000 0008
+- **تاريخ الانتهاء**: 01/39
+- **رمز الأمان**: 123
+- **اسم حامل البطاقة**: test
+
+### سيناريوهات الاختبار
+1. **الدفع الناجح**: استخدم البيانات التجريبية لإتمام الدفع بنجاح
+2. **إلغاء الدفع**: اضغط على زر الإلغاء في بوابة الدفع
+3. **خطأ في الدفع**: استخدم بيانات بطاقة غير صحيحة
+4. **المعاملات المتكررة**: اضغط على زر الشراء عدة مرات لإنشاء معاملات جديدة
+
+## التسجيل والمراقبة
+
+النظام يقوم بتسجيل جميع العمليات في console:
+- بدء المعاملات الجديدة
+- استلام إشعارات الدفع
+- تفاصيل النجاح والفشل والإلغاء
+- أخطاء الاتصال
+
+## الأمان
+
+- جميع البيانات مشفرة
+- استخدام HTTPS للاتصالات
+- التحقق من صحة البيانات المدخلة
+- معالجة آمنة للأخطاء
+
+## الدعم
+
+للمساعدة أو الاستفسارات، يرجى التواصل مع فريق التطوير.
+
+---
+
+© 2024 متجر أريبا الإلكتروني - جميع الحقوق محفوظة

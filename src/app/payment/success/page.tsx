@@ -340,12 +340,21 @@ function SuccessContent() {
             >
               العودة للصفحة الرئيسية
             </button>
-            <button
-              onClick={() => window.print()}
-              className="w-full border border-gray-300 text-gray-700 font-bold py-3 px-6 rounded-xl hover:bg-gray-50 transition-all duration-200"
-            >
-              طباعة الإيصال
-            </button>
+                         <button
+               onClick={() => {
+                 const params = new URLSearchParams({
+                   transactionId: transactionId,
+                   amount: amount,
+                   currency: currency,
+                   customerEmail: customerEmail,
+                   customerName: customerName
+                 });
+                 window.open(`/payment/receipt?${params.toString()}`, '_blank');
+               }}
+               className="w-full border border-gray-300 text-gray-700 font-bold py-3 px-6 rounded-xl hover:bg-gray-50 transition-all duration-200"
+             >
+               🖨️ طباعة الإيصال
+             </button>
           </div>
         </div>
       </div>

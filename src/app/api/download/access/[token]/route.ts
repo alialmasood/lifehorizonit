@@ -32,9 +32,9 @@ export async function GET(
     const tokenDoc = await getDoc(doc(db, 'downloadTokens', token));
     
     if (!tokenDoc.exists()) {
-      return NextResponse.redirect(
-        `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/download/error?type=invalid&message=رابط التحميل غير صحيح أو منتهي الصلاحية`
-      );
+             return NextResponse.redirect(
+         `/download/error?type=invalid&message=رابط التحميل غير صحيح أو منتهي الصلاحية`
+       );
     }
 
     const tokenData = tokenDoc.data() as DownloadToken;
@@ -45,9 +45,9 @@ export async function GET(
     if (tokenData.currentDownloads >= tokenData.maxDownloads) {
       // حذف الرابط بعد استنفاذ عدد التحميلات
       await deleteDoc(doc(db, 'downloadTokens', token));
-      return NextResponse.redirect(
-        `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/download/error?type=max_downloads&message=تم استنفاذ عدد مرات التحميل المسموحة`
-      );
+             return NextResponse.redirect(
+         `/download/error?type=max_downloads&message=تم استنفاذ عدد مرات التحميل المسموحة`
+       );
     }
 
     // زيادة عداد التحميلات
@@ -163,9 +163,9 @@ export async function GET(
         }
       }
       
-      return NextResponse.redirect(
-        `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/download/error?type=download_failed&message=${encodeURIComponent(errorMessage)}`
-      );
+             return NextResponse.redirect(
+         `/download/error?type=download_failed&message=${encodeURIComponent(errorMessage)}`
+       );
     }
 
   } catch (error) {

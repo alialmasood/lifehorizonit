@@ -219,25 +219,27 @@ function SuccessContent() {
         alert('تم بدء تحميل اللعبة بنجاح! 🎉\nهذه كانت آخر مرة تحميل متاحة.');
       }
       
-    } catch (error) {
+        } catch (error) {
       console.error('خطأ في تحميل اللعبة:', error);
       
-             // رسائل خطأ أكثر تفصيلاً
-       let errorMessage = 'حدث خطأ أثناء تحميل اللعبة. يرجى المحاولة مرة أخرى.';
-       
-       if (error instanceof Error) {
-         if (error.name === 'AbortError') {
-           errorMessage = 'انتهت مهلة التحميل. الملف كبير جداً أو بطيء الاتصال.';
-         } else if (error.message.includes('404')) {
-           errorMessage = 'الملف غير موجود أو تم حذفه.';
-         } else if (error.message.includes('403')) {
-           errorMessage = 'غير مسموح بالوصول للملف.';
-         } else if (error.message.includes('500')) {
-           errorMessage = 'خطأ في الخادم. يرجى المحاولة لاحقاً.';
-                             } else {
-           errorMessage = `خطأ في التحميل: ${error.message}`;
-         }
-       }
+      // رسائل خطأ أكثر تفصيلاً
+      let errorMessage = 'حدث خطأ أثناء تحميل اللعبة. يرجى المحاولة مرة أخرى.';
+      
+      if (error instanceof Error) {
+        if (error.name === 'AbortError') {
+          errorMessage = 'انتهت مهلة التحميل. الملف كبير جداً أو بطيء الاتصال.';
+        } else if (error.message.includes('Failed to fetch')) {
+          errorMessage = 'فشل في الاتصال بالخادم. تحقق من الاتصال وحاول مرة أخرى.';
+        } else if (error.message.includes('404')) {
+          errorMessage = 'الملف غير موجود أو تم حذفه.';
+        } else if (error.message.includes('403')) {
+          errorMessage = 'غير مسموح بالوصول للملف.';
+        } else if (error.message.includes('500')) {
+          errorMessage = 'خطأ في الخادم. يرجى المحاولة لاحقاً.';
+        } else {
+          errorMessage = `خطأ في التحميل: ${error.message}`;
+        }
+      }
       
       alert(errorMessage);
     }

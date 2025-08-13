@@ -44,9 +44,10 @@ export async function POST(request: NextRequest) {
       if (validTokens.length > 0) {
         const existingToken = validTokens[0];
         
+        // استخدام URL النسبي بدلاً من المطلق
         return NextResponse.json({
           success: true,
-          downloadUrl: `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/download/access/${existingToken.id}`,
+          downloadUrl: `/api/download/access/${existingToken.id}`,
           maxDownloads: existingToken.maxDownloads
         });
       }
@@ -100,8 +101,8 @@ export async function POST(request: NextRequest) {
     // توليد رمز فريد للتحميل
     const tokenId = crypto.randomBytes(32).toString('hex');
     
-    // إنشاء رابط التحميل المؤقت
-    const downloadUrl = `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/download/access/${tokenId}`;
+    // إنشاء رابط التحميل المؤقت (URL نسبي)
+    const downloadUrl = `/api/download/access/${tokenId}`;
 
     // إنشاء كائن التحميل
     const downloadToken: DownloadToken = {

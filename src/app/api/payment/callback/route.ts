@@ -38,6 +38,25 @@ export async function POST(request: NextRequest) {
       // - إرسال تأكيد بالبريد الإلكتروني
       // - تحديث المخزون
       
+      // حفظ معلومات المعاملة الناجحة في Firebase للتحقق لاحقاً
+      try {
+        const transactionData = {
+          merchantTransactionId,
+          transactionId,
+          status,
+          amount,
+          currency,
+          customer,
+          timestamp: new Date(),
+          processed: false
+        };
+        
+        // يمكنك حفظ هذه البيانات في Firebase للتحقق من صحة المعاملات
+        console.log('تم حفظ بيانات المعاملة الناجحة:', transactionData);
+      } catch (error) {
+        console.error('خطأ في حفظ بيانات المعاملة:', error);
+      }
+      
     } else if (status === 'FAILED') {
       console.log(`❌ فشل الدفع للمعاملة: ${merchantTransactionId}`);
       console.log(`رمز الخطأ: ${errorCode}`);

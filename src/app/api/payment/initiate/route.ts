@@ -40,7 +40,7 @@ export async function POST(request: NextRequest) {
       merchantTransactionId,
       amount: amount.toString(),
       currency: "IQD",
-      successUrl: `${request.nextUrl.origin}/payment/success?transactionId=${merchantTransactionId}&amount=${amount}&currency=IQD`,
+      successUrl: `${request.nextUrl.origin}/payment/success?transactionId=${merchantTransactionId}&amount=${amount}&currency=IQD&customerEmail=${encodeURIComponent(customerEmail)}&customerName=${encodeURIComponent(customerName)}`,
       cancelUrl: `${request.nextUrl.origin}/payment/cancel?transactionId=${merchantTransactionId}`,
       errorUrl: `${request.nextUrl.origin}/payment/error?transactionId=${merchantTransactionId}`,
       callbackUrl: `${request.nextUrl.origin}/api/payment/callback`

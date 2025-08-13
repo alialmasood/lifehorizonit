@@ -176,8 +176,278 @@ function RegisterContent() {
       {/* Form */}
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow-sm p-8">
-          {/* ... (نفس بقية النموذج كما كان) ... */}
-          {/* ضع بقية JSX الخاص بك هنا بدون أي تغيير */}
+          {/* Course Selection */}
+          <div className="mb-8">
+            <h2 className="text-2xl font-bold text-gray-900 mb-6">اختيار الدورة</h2>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                اختر الدورة المطلوبة *
+              </label>
+              <select
+                name="courseId"
+                value={formData.courseId}
+                onChange={handleInputChange}
+                required
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+              >
+                <option value="">-- اختر الدورة --</option>
+                {courses.map(course => (
+                  <option key={course.id} value={course.id}>
+                    {course.title}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+
+          {/* Personal Information */}
+          <div className="mb-8">
+            <h2 className="text-2xl font-bold text-gray-900 mb-6">المعلومات الشخصية</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  الاسم الكامل (عربي) *
+                </label>
+                <input
+                  type="text"
+                  name="fullNameAr"
+                  value={formData.fullNameAr}
+                  onChange={handleInputChange}
+                  required
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                  placeholder="الاسم الكامل باللغة العربية"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  الاسم الكامل (إنجليزي) *
+                </label>
+                <input
+                  type="text"
+                  name="fullNameEn"
+                  value={formData.fullNameEn}
+                  onChange={handleInputChange}
+                  required
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                  placeholder="Full Name in English"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  رقم الهاتف *
+                </label>
+                <input
+                  type="tel"
+                  name="phone"
+                  value={formData.phone}
+                  onChange={handleInputChange}
+                  required
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                  placeholder="07XX XXX XXXX"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  البريد الإلكتروني *
+                </label>
+                <input
+                  type="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleInputChange}
+                  required
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                  placeholder="example@email.com"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  تاريخ الميلاد *
+                </label>
+                <input
+                  type="date"
+                  name="dateOfBirth"
+                  value={formData.dateOfBirth}
+                  onChange={handleInputChange}
+                  required
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  الجنس *
+                </label>
+                <select
+                  name="gender"
+                  value={formData.gender}
+                  onChange={handleInputChange}
+                  required
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                >
+                  {GENDERS.map(gender => (
+                    <option key={gender} value={gender}>
+                      {gender}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="md:col-span-2">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  العنوان *
+                </label>
+                <input
+                  type="text"
+                  name="address"
+                  value={formData.address}
+                  onChange={handleInputChange}
+                  required
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                  placeholder="العنوان الكامل"
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Academic Information */}
+          <div className="mb-8">
+            <h2 className="text-2xl font-bold text-gray-900 mb-6">المعلومات الأكاديمية</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  المستوى الأكاديمي *
+                </label>
+                <select
+                  name="academicLevel"
+                  value={formData.academicLevel}
+                  onChange={handleInputChange}
+                  required
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                >
+                  {ACADEMIC_LEVELS.map(level => (
+                    <option key={level} value={level}>
+                      {level}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  المهنة
+                </label>
+                <input
+                  type="text"
+                  name="occupation"
+                  value={formData.occupation}
+                  onChange={handleInputChange}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                  placeholder="المهنة الحالية"
+                />
+              </div>
+
+              <div className="md:col-span-2">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  الخبرة السابقة
+                </label>
+                <textarea
+                  name="experience"
+                  value={formData.experience}
+                  onChange={handleInputChange}
+                  rows={3}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                  placeholder="اذكر خبرتك السابقة في المجال (إن وجدت)"
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Emergency Contact */}
+          <div className="mb-8">
+            <h2 className="text-2xl font-bold text-gray-900 mb-6">معلومات الطوارئ</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  شخص للاتصال في الطوارئ *
+                </label>
+                <input
+                  type="text"
+                  name="emergencyContact"
+                  value={formData.emergencyContact}
+                  onChange={handleInputChange}
+                  required
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                  placeholder="اسم الشخص"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  رقم هاتف الطوارئ *
+                </label>
+                <input
+                  type="tel"
+                  name="emergencyPhone"
+                  value={formData.emergencyPhone}
+                  onChange={handleInputChange}
+                  required
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                  placeholder="07XX XXX XXXX"
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Goals and Additional Info */}
+          <div className="mb-8">
+            <h2 className="text-2xl font-bold text-gray-900 mb-6">الأهداف والمعلومات الإضافية</h2>
+            <div className="space-y-6">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  أهدافك من الدورة *
+                </label>
+                <textarea
+                  name="goals"
+                  value={formData.goals}
+                  onChange={handleInputChange}
+                  required
+                  rows={4}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                  placeholder="اذكر أهدافك من الالتحاق بهذه الدورة"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  معلومات إضافية
+                </label>
+                <textarea
+                  name="additionalInfo"
+                  value={formData.additionalInfo}
+                  onChange={handleInputChange}
+                  rows={4}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                  placeholder="أي معلومات إضافية تود إضافتها"
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Submit Button */}
+          <div className="flex justify-end">
+            <button
+              type="submit"
+              disabled={loading}
+              className="bg-orange-500 text-white px-8 py-3 rounded-lg font-bold hover:bg-orange-600 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {loading ? 'جاري الإرسال...' : 'إرسال طلب التسجيل'}
+            </button>
+          </div>
         </form>
       </div>
     </div>
